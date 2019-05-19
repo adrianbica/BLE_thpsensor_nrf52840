@@ -83,9 +83,10 @@ SRC_FILES += \
   $(PROJ_DIR)/ble/HumidityCharacteristic.cpp \
   $(PROJ_DIR)/ble/PressureCharacteristic.cpp \
   $(PROJ_DIR)/ble/TemperatureCharacteristic.cpp \
+  $(PROJ_DIR)/ble/DigitalCharacteristic.cpp \
   $(PROJ_DIR)/ble/THPSensingService.cpp \
   $(PROJ_DIR)/ble/LedService.cpp \
-  $(PROJ_DIR)/ble/LedCharacteristic.cpp \
+  $(PROJ_DIR)/ble/RelayService.cpp \
 
 # Include folders common to all targets
 INC_FOLDERS += \

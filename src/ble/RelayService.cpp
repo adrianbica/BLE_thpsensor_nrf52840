@@ -1,19 +1,19 @@
-#include "LedService.h"
+#include "RelayService.h"
 #include "nrf_log.h"
 
-#ifndef BLE_LED_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS
-#define BLE_LED_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS BLE_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS
+#ifndef BLE_RELAY_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS
+#define BLE_RELAY_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS BLE_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS
 #endif
 
-uint8_t LedInitialValue[BLE_LED_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS] = {0};
+uint8_t RelayInitialValue[BLE_RELAY_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS] = {1};
 
-LedService::LedService(void) :
+RelayService::RelayService(void) :
     Service()
 {
-    pLedCharacteristic = new DigitalCharacteristic(LedInitialValue);
+    pRelayCharacteristic = new DigitalCharacteristic(RelayInitialValue);
 }
 
-uint32_t LedService::Init(LedServiceEventHandler eventHandler)
+uint32_t RelayService::Init(RelayServiceEventHandler eventHandler)
 {
     uint32_t        err_code;
     ble_uuid_t      ble_uuid;
@@ -25,14 +25,14 @@ uint32_t LedService::Init(LedServiceEventHandler eventHandler)
     err_code = Add(&ble_uuid);
     if (err_code != NRF_SUCCESS) return err_code;
 
-    pLedCharacteristic->InitParams();
-    err_code = AddCharacteristic(pLedCharacteristic, &digital_handles);
+    pRelayCharacteristic->InitParams();
+    err_code = AddCharacteristic(pRelayCharacteristic, &digital_handles);
     if (err_code != NRF_SUCCESS) 
         return err_code;
     return NRF_SUCCESS;
 }
 
-uint32_t LedService::IsIndicationEnabled(ble_gatts_char_handles_t handles, bool* p_indication_enabled)
+uint32_t RelayService::IsIndicationEnabled(ble_gatts_char_handles_t handles, bool* p_indication_enabled)
 {
     uint32_t err_code;
     uint8_t  cccd_value_buf[BLE_CCCD_VALUE_LEN];
@@ -56,14 +56,14 @@ uint32_t LedService::IsIndicationEnabled(ble_gatts_char_handles_t handles, bool*
     return err_code;
 }
 
-void LedService::OnWrite(ble_evt_t const *p_ble_evt)
+void RelayService::OnWrite(ble_evt_t const *p_ble_evt)
 {
     if (p_ble_evt->evt.gatts_evt.params.write.handle == digital_handles.value_handle)
     {
         if(eventHandler != NULL)
         {
-            LedServiceEvent evt;
-            evt.evt_type = BLE_LED_SERVICE_DIGITAL_EVT_WRITE;
+            RelayServiceEvent evt;
+            evt.evt_type = BLE_RELAY_SERVICE_DIGITAL_EVT_WRITE;
 
             /* If evt.params.digital contains some fields that require initialization before decoding, do it here.
              * Following fileds require initialization before decoding:
@@ -72,15 +72,15 @@ void LedService::OnWrite(ble_evt_t const *p_ble_evt)
              *     - optional fields (field name ends with "_is_present"),
              *     - conditions (field like "bool cNN", where NN is a number)
              */
-            evt.params.digital.digital_count = BLE_LED_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS;
+            evt.params.digital.digital_count = BLE_RELAY_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS;
 
-            pLedCharacteristic->Decode(&evt.params.digital, p_ble_evt->evt.gatts_evt.params.write.data, p_ble_evt->evt.gatts_evt.params.write.len);
+            pRelayCharacteristic->Decode(&evt.params.digital, p_ble_evt->evt.gatts_evt.params.write.data, p_ble_evt->evt.gatts_evt.params.write.len);
             eventHandler(this, &evt);
         }
     }
 }
 
-uint32_t LedService::Set(ServiceDigital* p_digital)
+uint32_t RelayService::Set(ServiceDigital* p_digital)
 {
     ble_gatts_value_t gatts_value;
     uint8_t encoded_value[MAX_DIGITAL_LEN];
@@ -88,11 +88,10 @@ uint32_t LedService::Set(ServiceDigital* p_digital)
     // Initialize value struct.
     memset(&gatts_value, 0, sizeof(gatts_value));
 
-    gatts_value.len     = pLedCharacteristic->Encode(p_digital, encoded_value, sizeof(encoded_value));
+    gatts_value.len     = pRelayCharacteristic->Encode(p_digital, encoded_value, sizeof(encoded_value));
     gatts_value.offset  = 0;
     gatts_value.p_value = encoded_value;
 
     return sd_ble_gatts_value_set(conn_handle, digital_handles.value_handle, &gatts_value);
 }
-
 

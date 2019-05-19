@@ -2,7 +2,7 @@
 #define __LED_SERVICE_H__
 
 #include "Service.h"
-#include "LedCharacteristic.h"
+#include "DigitalCharacteristic.h"
 
 
 class LedService;
@@ -22,7 +22,7 @@ struct LedServiceEvent
     union
     {
         uint16_t            cccd_value;     /**< Holds decoded data in Notify and Indicate event handler. */
-        LedServiceDigital   digital;        /**< Holds decoded data in Write event handler. */
+        ServiceDigital      digital;        /**< Holds decoded data in Write event handler. */
     } params;
 };
 
@@ -32,7 +32,7 @@ class LedService: public Service
 {
 private:
     LedServiceEventHandler      eventHandler;
-    LedCharacteristic           *pLedCharacteristic;
+    DigitalCharacteristic       *pLedCharacteristic;
     ble_gatts_char_handles_t    digital_handles; /**< Handles related to the Digital characteristic. */
 
     uint32_t IsIndicationEnabled(ble_gatts_char_handles_t, bool* p_indication_enabled);
@@ -41,7 +41,7 @@ public:
     LedService(void);
     uint32_t Init(LedServiceEventHandler eh);
 
-    uint32_t Set(LedServiceDigital* p_digital);
+    uint32_t Set(ServiceDigital* p_digital);
 };
 #endif
 

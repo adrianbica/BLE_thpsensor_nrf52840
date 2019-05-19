@@ -1,17 +1,17 @@
-#include "LedCharacteristic.h"
+#include "DigitalCharacteristic.h"
 #include "nrf_log.h"
 
-LedCharacteristic::LedCharacteristic(uint8_t *initial_value)
+DigitalCharacteristic::DigitalCharacteristic(uint8_t *initial_value)
 {
-    for (int i = 0; i < BLE_LED_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS; i++) {
+    for (int i = 0; i < BLE_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS; i++) {
         this->initial_value.digital[i] = *initial_value++;
     }
-    this->initial_value.digital_count = BLE_LED_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS;
+    this->initial_value.digital_count = BLE_SERVICE_DIGITAL_DIGITAL_MAX_ITEMS;
 }
 
-uint16_t LedCharacteristic::Encode(const void *data, uint8_t *buffer, uint16_t buffer_size)
+uint16_t DigitalCharacteristic::Encode(const void *data, uint8_t *buffer, uint16_t buffer_size)
 {
-    LedServiceDigital       *service = (LedServiceDigital*)data;
+    ServiceDigital          *service = (ServiceDigital*)data;
     bds_char_enc_buffer_t   enc_buffer;
 
     bds_char_enc_buffer_init(&enc_buffer, buffer, buffer_size);
@@ -24,9 +24,9 @@ uint16_t LedCharacteristic::Encode(const void *data, uint8_t *buffer, uint16_t b
 }
 
 
-uint16_t LedCharacteristic::Decode(const void *data, const uint8_t *buffer, uint16_t buffer_size)
+uint16_t DigitalCharacteristic::Decode(const void *data, const uint8_t *buffer, uint16_t buffer_size)
 {
-    LedServiceDigital       *service = (LedServiceDigital*)data;
+    ServiceDigital          *service = (ServiceDigital*)data;
     bds_char_dec_buffer_t   dec_buffer;
 
     bds_char_dec_buffer_init(&dec_buffer, buffer, buffer_size);
@@ -39,7 +39,7 @@ uint16_t LedCharacteristic::Decode(const void *data, const uint8_t *buffer, uint
     return bds_char_dec_buffer_done(&dec_buffer, buffer);
 }
 
-void LedCharacteristic::InitParams(void)
+void DigitalCharacteristic::InitParams(void)
 {
     uint8_t digital_encoded_value[MAX_DIGITAL_LEN];
 
@@ -56,3 +56,4 @@ void LedCharacteristic::InitParams(void)
     // 1 for variable length and 0 for fixed length.
     params.is_var_len          = 1; 
 }
+

@@ -56,6 +56,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "bsp.h"
 #include "nordic_common.h"
 #include "nrf.h"
 #include "app_error.h"
@@ -86,6 +87,7 @@
 //#include "thp_sensing_service.h"
 #include "ble/THPSensingService.h"
 #include "ble/LedService.h"
+#include "ble/RelayService.h"
 
 using namespace std; 
 
@@ -128,6 +130,7 @@ static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        
 
 THPSensingService   *pTHPService = new THPSensingService();
 LedService          *pLedService = new LedService();
+RelayService        *pRelayService = new RelayService();
 
 /* YOUR_JOB: Declare all services structure your application is using
  *  BLE_XYZ_DEF(m_xyz);
@@ -453,6 +456,48 @@ static void on_led_service_evt(LedService *p_led_control_service, LedServiceEven
     }
 }
 
+/**@brief Function for handling the LED CONTROL SERVICE events.
+ *
+ * @details This function will be called for all LED CONTROL SERVICE events which are passed to
+ *          the application.
+ *
+ * @param[in]   p_led_control_service   LED CONTROL SERVICE structure.
+ * @param[in]   p_evt   Event received from the LED CONTROL SERVICE.
+ */
+static void on_relay_service_evt(RelayService *p_led_control_service, RelayServiceEvent * p_evt)
+{
+    switch (p_evt->evt_type)
+    { 
+        case BLE_RELAY_SERVICE_DIGITAL_EVT_WRITE:
+            NRF_LOG_INFO("RELAY_SERVICE_DIGITAL evt WRITE. \r\n");
+            if ((p_evt->params.digital.digital[0] & 0x03) == 0x01) {
+                nrf_gpio_pin_write(RELAY_1, 0);
+            } else {
+                nrf_gpio_pin_write(RELAY_1, 1);
+            }
+            if ((p_evt->params.digital.digital[1] & 0x03) == 0x01) {
+                nrf_gpio_pin_write(RELAY_2, 0);
+            } else {
+                nrf_gpio_pin_write(RELAY_2, 1);
+            }
+            if ((p_evt->params.digital.digital[2] & 0x03) == 0x01) {
+                nrf_gpio_pin_write(RELAY_3, 0);
+            } else {
+                nrf_gpio_pin_write(RELAY_3, 1);
+            }
+            if ((p_evt->params.digital.digital[3] & 0x03) == 0x01) {
+                nrf_gpio_pin_write(RELAY_4, 0);
+            } else {
+                nrf_gpio_pin_write(RELAY_4, 1);
+            }
+            break; 
+        default:
+            // No implementation needed.
+            NRF_LOG_INFO("RELAY_SERVICE_DIGITAL evt: %d\r\n", p_evt->evt_type);
+            break;
+    }
+}
+
 
 //ble_thp_sensing_service_t    m_thp_sensing_service; 
 
@@ -462,6 +507,7 @@ void services_init(void)
 {
     pTHPService->Init(on_thp_sensing_service_evt);
     pLedService->Init(on_led_service_evt);
+    pRelayService->Init(on_relay_service_evt);
     return;
 }
 
@@ -678,6 +724,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     }
     pTHPService->OnBleEvent(p_ble_evt);
     pLedService->OnBleEvent(p_ble_evt);
+    pRelayService->OnBleEvent(p_ble_evt);
 }
 
 
@@ -838,6 +885,15 @@ static void buttons_leds_init(bool * p_erase_bonds)
     APP_ERROR_CHECK(err_code);
 
     *p_erase_bonds = (startup_event == BSP_EVENT_CLEAR_BONDING_DATA);
+
+    nrf_gpio_pin_write(RELAY_1, 1);
+    nrf_gpio_pin_write(RELAY_2, 1);
+    nrf_gpio_pin_write(RELAY_3, 1);
+    nrf_gpio_pin_write(RELAY_4, 1);
+    nrf_gpio_pin_dir_set(RELAY_1, NRF_GPIO_PIN_DIR_OUTPUT);
+    nrf_gpio_pin_dir_set(RELAY_2, NRF_GPIO_PIN_DIR_OUTPUT);
+    nrf_gpio_pin_dir_set(RELAY_3, NRF_GPIO_PIN_DIR_OUTPUT);
+    nrf_gpio_pin_dir_set(RELAY_4, NRF_GPIO_PIN_DIR_OUTPUT);
 }
 
 
@@ -910,6 +966,10 @@ int main(void)
 
     advertising_start(erase_bonds);
 
+    nrf_gpio_pin_write(RELAY_1, 0);
+    nrf_gpio_pin_write(RELAY_2, 1);
+    nrf_gpio_pin_write(RELAY_3, 1);
+    nrf_gpio_pin_write(RELAY_4, 1);
     // Enter main loop.
     for (;;)
     {
