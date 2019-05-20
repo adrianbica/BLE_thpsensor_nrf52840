@@ -18,3 +18,9 @@ This is a custom profile with three services:
     a. Digital characteristic
     
     This service is used to control four relays connected to the GPIO's on the DK board
+
+To build the code:
+> make all
+
+To flash the code:
+> make flash
