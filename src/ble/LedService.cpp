@@ -20,7 +20,7 @@ uint32_t LedService::Init(LedServiceEventHandler eventHandler)
 
     this->eventHandler = eventHandler;
     conn_handle = BLE_CONN_HANDLE_INVALID;
-    BLE_UUID_BLE_ASSIGN(ble_uuid, 0x0002);
+    BLE_UUID_BLE_ASSIGN(ble_uuid, 0x0003);
 
     err_code = Add(&ble_uuid);
     if (err_code != NRF_SUCCESS) return err_code;
