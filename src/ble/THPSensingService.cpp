@@ -12,13 +12,12 @@ THPSensingService::THPSensingService(void) :
 uint32_t THPSensingService::Init(SensingServiceEventHandler eventHandler)
 {
     uint32_t        err_code;
-    ble_uuid_t      ble_uuid;
+    const ble_uuid128_t base_uuid128 = {CUSTOM_THP_SERVICE_UUID_BASE};
 
     this->eventHandler = eventHandler;
     conn_handle = BLE_CONN_HANDLE_INVALID;
-    BLE_UUID_BLE_ASSIGN(ble_uuid, 0x0001);
 
-    err_code = Add(&ble_uuid);
+    err_code = Add(&base_uuid128);
     if (err_code != NRF_SUCCESS) return err_code;
 
     pHumidCharacteristic->InitParams();

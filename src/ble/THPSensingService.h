@@ -8,6 +8,9 @@
 
 class THPSensingService;
 
+#define CUSTOM_THP_SERVICE_UUID_BASE         {0x8C, 0x99, 0x0E, 0xCC, 0x50, 0x65, 0x4A, 0xB3, \
+                                              0xB2, 0x4C, 0x01, 0x00, 0xCB, 0x0B, 0xB7, 0xB2}
+
 enum SensingServiceEventType 
 {
     BLE_THP_SENSING_SERVICE_HUMIDITY_EVT_NOTIFICATION_ENABLED,      /* Humidity value notification enabled event. */

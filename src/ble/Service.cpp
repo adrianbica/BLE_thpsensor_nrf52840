@@ -35,6 +35,25 @@ uint32_t Service::Add(ble_uuid_t const *p_uuid)
     return sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, p_uuid, &service_handle);
 }
 
+uint32_t Service::Add(ble_uuid128_t const *p_uuid)
+{
+    uint32_t    err_code;
+    uint8_t     uuid_type;
+    ble_uuid_t  ble_uuid;
+
+    //ble_uuid128_t base_uuid = {CUSTOM_SERVICE_UUID_BASE};
+
+    err_code =  sd_ble_uuid_vs_add(p_uuid, &uuid_type);
+    if (err_code != NRF_SUCCESS)
+    {
+        NRF_LOG_INFO("Add Err 1: %d", err_code);
+        return err_code;
+    }
+    ble_uuid.type = uuid_type;
+    ble_uuid.uuid = 0x0000;
+    return sd_ble_gatts_service_add(BLE_GATTS_SRVC_TYPE_PRIMARY, &ble_uuid, &service_handle);
+}
+
 uint32_t Service::AddCharacteristic(Characteristic *p_characteristic, ble_gatts_char_handles_t *handles)
 {
     return characteristic_add(service_handle, p_characteristic->GetParams(), handles);

@@ -8,6 +8,8 @@
 #include "ble_srv_common.h"
 #include "Characteristic.h"
 
+#include "nrf_log.h"
+
 class Service
 {
 protected:
@@ -24,6 +26,7 @@ protected:
 public:
     Service(void){};
     uint32_t Add(ble_uuid_t const *p_uuid);   
+    uint32_t Add(ble_uuid128_t const *p_uuid);   
     uint32_t AddCharacteristic(Characteristic *p_characteristic, ble_gatts_char_handles_t *handles);
     //virtual uint32_t Init();
     uint16_t GetHandle(void) { return service_handle; }
