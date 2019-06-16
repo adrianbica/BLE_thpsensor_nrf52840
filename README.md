@@ -1,7 +1,7 @@
 # thpsensor
-Bluetooth custom profile on nRF52840-DK board
+Bluetooth custom profile on nRF52840-DK board (PCA10056) - preview kit
 
-This is a custom profile with three services:
+This is a custom profile with four services:
 1. THP Sensing Service has three characteristics:
     a. Humidity characteristic
     b. Pressure characteristic
@@ -18,6 +18,11 @@ This is a custom profile with three services:
     a. Digital characteristic
     
     This service is used to control four relays connected to the GPIO's on the DK board
+    
+4. ServoMotor Service has one characteristic:
+    a. Analog characteristic
+    
+    This sevice is used to control the angle of a DS3218 servomotor    
 
 To build the code:
 > make all
