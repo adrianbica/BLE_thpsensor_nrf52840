@@ -81,6 +81,9 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 
+#include "nrf_drv_pwm.h"
+#include "app_pwm.h"
+
 #include "THPSensor.h"
 #include "timer.h"
 
@@ -88,6 +91,7 @@
 #include "ble/THPSensingService.h"
 #include "ble/LedService.h"
 #include "ble/RelayService.h"
+#include "ble/ServoMotorService.h"
 
 using namespace std; 
 
@@ -131,6 +135,7 @@ static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        
 THPSensingService   *pTHPService = new THPSensingService();
 LedService          *pLedService = new LedService();
 RelayService        *pRelayService = new RelayService();
+ServoMotorService   *pServoMotorService = new ServoMotorService();
 
 /* YOUR_JOB: Declare all services structure your application is using
  *  BLE_XYZ_DEF(m_xyz);
@@ -498,6 +503,40 @@ static void on_relay_service_evt(RelayService *p_led_control_service, RelayServi
     }
 }
 
+APP_PWM_INSTANCE(PWM1,1);                   // Create the instance "PWM1" using TIMER1.
+
+/**@brief Function for handling the SERVO SERVICE events.
+ *
+ * @details This function will be called for all SERVO SERVICE events which are passed to
+ *          the application.
+ *
+ * @param[in]   p_servo_service   SERVO SERVICE structure.
+ * @param[in]   p_evt   Event received from the SERVO SERVICE.
+ */
+static void on_servo_service_evt(ServoMotorService* p_servo_service, ServoMotorServiceEvent* p_evt)
+{
+    uint16_t    val;
+
+    switch (p_evt->evt_type)
+    { 
+        case BLE_SERVOMOTOR_SERVICE_ANALOG_EVT_WRITE:
+            NRF_LOG_INFO("SERVO_SERVICE_ANALOG evt WRITE: %d \r\n", p_evt->params.analog.analog);
+            val = p_evt->params.analog.analog;
+            if (val < 800) {
+                val = 800;
+            }
+            if (val > 5100) {
+                val = 5100;
+            }
+            while (app_pwm_channel_duty_ticks_set(&PWM1, 0, val) == NRF_ERROR_BUSY);
+            break; 
+        default:
+            // No implementation needed.
+            break;
+    }
+}
+
+
 
 //ble_thp_sensing_service_t    m_thp_sensing_service; 
 
@@ -508,6 +547,7 @@ void services_init(void)
     pTHPService->Init(on_thp_sensing_service_evt);
     pLedService->Init(on_led_service_evt);
     pRelayService->Init(on_relay_service_evt);
+    pServoMotorService->Init(on_servo_service_evt);
     return;
 }
 
@@ -725,6 +765,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     pTHPService->OnBleEvent(p_ble_evt);
     pLedService->OnBleEvent(p_ble_evt);
     pRelayService->OnBleEvent(p_ble_evt);
+    pServoMotorService->OnBleEvent(p_ble_evt);
 }
 
 
@@ -938,6 +979,49 @@ static void advertising_start(bool erase_bonds)
 //THPSensor thp_sensor;
 
 
+
+//static nrf_drv_pwm_t m_pwm0 = NRF_DRV_PWM_INSTANCE(0);
+
+void pwm_init(void)
+{
+    ret_code_t err_code;
+#if(1)
+    nrf_gpio_pin_dir_set(31, NRF_GPIO_PIN_DIR_OUTPUT);
+    app_pwm_config_t pwm1_cfg = APP_PWM_DEFAULT_CONFIG_1CH(20000L, 31);
+    pwm1_cfg.pin_polarity[0] = APP_PWM_POLARITY_ACTIVE_HIGH;
+    /* Initialize and enable PWM. */
+    err_code = app_pwm_init(&PWM1, &pwm1_cfg, NULL/*pwm_ready_callback*/);
+    APP_ERROR_CHECK(err_code);
+    app_pwm_enable(&PWM1);
+    // minimum 800, maximum 5100 0 = 2950
+    // 1 tick = 0.5 usec
+    //while (app_pwm_channel_duty_set(&PWM1, 0, 10) == NRF_ERROR_BUSY);
+    //while (app_pwm_channel_duty_ticks_set(&PWM1, 0, 10000) == NRF_ERROR_BUSY);
+    while (app_pwm_channel_duty_ticks_set(&PWM1, 0, 2950) == NRF_ERROR_BUSY);
+    //APP_ERROR_CHECK(app_pwm_channel_duty_set(&PWM1, 1, 200));
+
+#else
+    nrf_drv_pwm_config_t config;
+
+    ////////////////////////////////////////////////////////////////////////////
+    // PWM0 initialization.
+
+    config.irq_priority   = APP_IRQ_PRIORITY_LOWEST;
+    config.count_mode     = NRF_PWM_MODE_UP;
+    config.step_mode      = NRF_PWM_STEP_AUTO;
+    config.output_pins[0] = 31 | NRF_DRV_PWM_PIN_INVERTED;
+    config.output_pins[1] = NRF_DRV_PWM_PIN_NOT_USED;
+    config.output_pins[2] = NRF_DRV_PWM_PIN_NOT_USED;
+    config.output_pins[3] = NRF_DRV_PWM_PIN_NOT_USED;
+    config.base_clock     = NRF_PWM_CLK_125kHz;
+    config.top_value      = 31250; // 250ms period
+    config.load_mode      = NRF_PWM_LOAD_INDIVIDUAL;
+    config.step_mode      = NRF_PWM_STEP_AUTO;
+    APP_ERROR_CHECK(nrf_drv_pwm_init(&m_pwm0, &config, NULL));
+#endif
+}
+
+
 /**@brief Function for application main entry.
  */
 int main(void)
@@ -966,10 +1050,13 @@ int main(void)
 
     advertising_start(erase_bonds);
 
-    nrf_gpio_pin_write(RELAY_1, 0);
+    nrf_gpio_pin_write(RELAY_1, 1);
     nrf_gpio_pin_write(RELAY_2, 1);
     nrf_gpio_pin_write(RELAY_3, 1);
     nrf_gpio_pin_write(RELAY_4, 1);
+
+    //APP_ERROR_CHECK(nrf_drv_clock_init());
+    pwm_init();
     // Enter main loop.
     for (;;)
     {

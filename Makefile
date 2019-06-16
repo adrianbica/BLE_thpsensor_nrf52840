@@ -38,12 +38,15 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/strerror/nrf_strerror.c \
   $(SDK_ROOT)/components/libraries/util/sdk_mapped_flags.c \
   $(SDK_ROOT)/components/libraries/sensorsim/sensorsim.c \
+  $(SDK_ROOT)/components/libraries/pwm/app_pwm.c \
   $(SDK_ROOT)/components/boards/boards.c \
   $(SDK_ROOT)/components/drivers_nrf/clock/nrf_drv_clock.c \
   $(SDK_ROOT)/components/drivers_nrf/common/nrf_drv_common.c \
   $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c \
   $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
   $(SDK_ROOT)/components/drivers_nrf/twi_master/nrf_drv_twi.c \
+  $(SDK_ROOT)/components/drivers_nrf/ppi/nrf_drv_ppi.c \
+  $(SDK_ROOT)/components/drivers_nrf/timer/nrf_drv_timer.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp_nfc.c \
@@ -84,9 +87,11 @@ SRC_FILES += \
   $(PROJ_DIR)/ble/PressureCharacteristic.cpp \
   $(PROJ_DIR)/ble/TemperatureCharacteristic.cpp \
   $(PROJ_DIR)/ble/DigitalCharacteristic.cpp \
+  $(PROJ_DIR)/ble/AnalogCharacteristic.cpp \
   $(PROJ_DIR)/ble/THPSensingService.cpp \
   $(PROJ_DIR)/ble/LedService.cpp \
   $(PROJ_DIR)/ble/RelayService.cpp \
+  $(PROJ_DIR)/ble/ServoMotorService.cpp \
 
 # Include folders common to all targets
 INC_FOLDERS += \
