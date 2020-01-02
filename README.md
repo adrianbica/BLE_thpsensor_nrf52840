@@ -29,5 +29,6 @@ To build the code:
 
 To flash the code:
 > make flash
+
 ![BLE Profile](/BLE_sensor_actuator.jpg)
 Format: ![Alt Text](url)
