@@ -30,5 +30,5 @@ To build the code:
 To flash the code:
 > make flash
 
-![BLE Profile](/BLE_sensor_actuator.png)
+![BLE_sensor_actuator](https://user-images.githubusercontent.com/4603301/71648796-04e61600-2cd7-11ea-985b-bb12b56dec18.png)
 Format: ![Alt Text](url)
