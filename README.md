@@ -30,7 +30,7 @@ To build the code:
 To flash the code:
 > make flash
 
-The GATT Profile will follow the following:
+The GATT Profile will look like in the following diagram:
 
 ![BLE_sensor_actuator](https://user-images.githubusercontent.com/4603301/71648796-04e61600-2cd7-11ea-985b-bb12b56dec18.png)
 
