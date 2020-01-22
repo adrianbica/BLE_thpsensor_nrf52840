@@ -34,7 +34,7 @@ static int16_t ReadTemperature(int32_t Tread, CALIBRATION Calibr)
     return (int16_t)T;
 }
 
-static uint16_t ReadPressure(int32_t Pread, CALIBRATION Calibr)
+static uint32_t ReadPressure(int32_t Pread, CALIBRATION Calibr)
 {
     int64_t     var1, var2, p;
     int32_t     pr;
@@ -55,10 +55,10 @@ static uint16_t ReadPressure(int32_t Pread, CALIBRATION Calibr)
     var2 = (((int64_t)Calibr.dig_P8) * p) >> 19;
     p = ((p + var1 + var2) >> 8) + (((int64_t)Calibr.dig_P7) << 4);
 
-    return (uint16_t)((10 * p)/256);
+    return (uint32_t)((10 * p)/256);
 }
 
-static uint32_t ReadHumidity(int32_t Hread, CALIBRATION Calibr)
+static uint16_t ReadHumidity(int32_t Hread, CALIBRATION Calibr)
 {
     int64_t v_x1_u32r;
 
@@ -74,7 +74,7 @@ static uint32_t ReadHumidity(int32_t Hread, CALIBRATION Calibr)
     v_x1_u32r = (v_x1_u32r < 0) ? 0 : v_x1_u32r;
     v_x1_u32r = (v_x1_u32r > 419430400) ? 419430400 : v_x1_u32r;
 
-    return(uint32_t)((100 * v_x1_u32r) >> 22);
+    return(uint16_t)((100 * v_x1_u32r) >> 22);
 }
 
 
